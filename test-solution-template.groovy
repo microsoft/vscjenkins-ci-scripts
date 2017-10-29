@@ -42,7 +42,7 @@ def DeployJenkinsSolutionTemplate(scenario_name, options) {
     if (options.useExistingPublicIP) {
         params['publicIPNewOrExisting'] = ['value' : 'existing']
         def deploy_ip_script_path = 'scripts/deploy-public-ip.sh'
-        sh 'sudo chmod +x ' + deploy_ip_script_path
+        sh 'chmod +x ' + deploy_ip_script_path
         withCredentials([usernamePassword(credentialsId: 'AzDevOpsTestingSP', passwordVariable: 'app_key', usernameVariable: 'app_id')]) {
             sh deploy_ip_script_path + ' -ip ' + params['publicIPName']['value'] + ' -rg ' + scenario_name + ' -dp ' + params['dnsPrefix']['value'] + ' -ai ' + env.app_id + ' -ak ' + env.app_key
         }
@@ -55,7 +55,7 @@ def DeployJenkinsSolutionTemplate(scenario_name, options) {
     writeJSON file: scenario_name + '.json', json: paramsJSON
 
     def script_path = 'scripts/deploy-arm-template.sh'
-    sh 'sudo chmod +x ' + script_path
+    sh 'chmod +x ' + script_path
 
     withCredentials([usernamePassword(credentialsId: 'AzDevOpsTestingSP', passwordVariable: 'app_key', usernameVariable: 'app_id')]) {
         ssh_command = sh(returnStdout: true, script: script_path + ' -rps yes -tu ' + template_url + ' -vm ' + params['vmName']['value'] + ' -tp ' + scenario_name +'.json -sn ' + scenario_name + ' -ai ' + env.app_id + ' -ak ' + env.app_key).trim()
