@@ -9,7 +9,7 @@ node('quickstart-template') {
 
         stage('Delete deployments') {
             def script_path = 'scripts/clean-deployments.sh'
-            sh 'sudo chmod +x ' + script_path
+            sh 'chmod +x ' + script_path
             withCredentials([usernamePassword(credentialsId: 'AzDevOpsTestingSP', passwordVariable: 'app_key', usernameVariable: 'app_id')]) {
                 sh script_path + ' -ai ' + env.app_id + ' -ak ' + env.app_key
             }
