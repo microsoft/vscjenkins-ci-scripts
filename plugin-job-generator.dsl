@@ -1,6 +1,7 @@
 def projects = ['azure-vm-agents-plugin', 'azure-credentials-plugin',
     'windows-azure-storage-plugin', 'azure-app-service-plugin', 'azure-commons-plugin',
-    'azure-container-agents-plugin', 'azure-function-plugin', 'azure-acs-plugin']
+    'azure-container-agents-plugin', 'azure-function-plugin', 'azure-acs-plugin',
+    'kubernetes-cd-plugin']
 
 projects.each {
     def gitUrl = "https://github.com/jenkinsci/${it}.git"
@@ -25,7 +26,7 @@ projects.each {
 {
     "files": [{
         "pattern": "target/(*).hpi",
-        "target": "${ -> it}-nightly/{1}-NIGHTLY-${tsParam}.hpi",
+        "target": "nightly-builds/${ -> it}/{1}-NIGHTLY-${tsParam}.hpi",
         "recursive": false
     }]
 }"""
