@@ -1,4 +1,4 @@
-def projects = ['azure-vm-agents-plugin', 'azure-credentials-plugin', 
+def projects = ['azure-vm-agents-plugin', 'azure-credentials-plugin',
     'windows-azure-storage-plugin', 'azure-app-service-plugin', 'azure-commons-plugin',
     'azure-container-agents-plugin', 'azure-function-plugin', 'azure-acs-plugin']
 
@@ -36,7 +36,12 @@ projects.each {
             zenTimestamp('yyyyMMdd')
         }
         scm {
-            git(gitUrl, "*/master")
+            git {
+                remote {
+                    url(gitUrl)
+                }
+                branch('*/master')
+            }
         }
         triggers {
        	    scm('H 1 * * *') {
@@ -60,8 +65,11 @@ projects.each {
                 uploadSpec {
                     spec(specJson)
                 }
+                downloadSpec {
+                    spec()
+                }
                 deployBuildInfo(true)
             }
         }
-    }    
+    }
 }
