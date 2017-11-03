@@ -41,7 +41,7 @@ projects.each {
                 remote {
                     url(gitUrl)
                 }
-                branch('*/master')
+                branch('*/dev')
             }
         }
         triggers {
