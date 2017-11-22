@@ -136,6 +136,8 @@ parameters=$(try_replace_parameter "$parameters" "${vm_prefix}DnsPrefix" "$scena
 >&2 az login --service-principal -u $app_id -p $app_key --tenant $tenant_id
 >&2 echo "Creating resource group '$scenario_name'..."
 >&2 az group create -n $scenario_name -l $region --tags "CleanTime=$(date -d "+${keep_alive_hours} hours" +%s)"
+# preventing from deleteing the nsg rules by webjob
+>&2 az lock create -t CanNotDelete -g $scenario_name -n del-lock
 >&2 echo "Deploying template '$template_name'..."
 deployment_data=$(az group deployment create -g $scenario_name --template-uri ${template_location}${template_name}/azuredeploy.json --parameters "$parameters")
 >&2 echo "$deployment_data"

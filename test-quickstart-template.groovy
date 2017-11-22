@@ -49,6 +49,7 @@ node('quickstart-template') {
         stage('Clean Up') {
           // Only clean up the resource group if all previous stages passed (just in case we want to debug a failure)
           // The clean-deployments job will delete it after 2 days
+          sh 'az lock delete -g ' + scenario_name + ' -n del-lock'
           sh 'az group delete -n ' + scenario_name + ' --yes'
         }
     } catch (e) {
