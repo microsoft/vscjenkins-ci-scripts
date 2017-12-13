@@ -53,6 +53,7 @@ node('quickstart-template') {
           sh 'az group delete -n ' + scenario_name + ' --yes'
         }
     } catch (e) {
+        sh 'az lock delete -g ' + scenario_name + ' -n del-lock || true'
         if ("$PUBLIC_URL" && "$TEAM_MAIL_ADDRESS") {
             def public_build_url = "$BUILD_URL".replaceAll("$JENKINS_URL" , "$PUBLIC_URL")
             emailext (
