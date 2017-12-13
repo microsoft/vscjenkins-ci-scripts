@@ -85,6 +85,7 @@ def RunSolutionTemplateTests(options) {
             sh 'az group delete -n ' + scenario_name + ' --yes'
         } catch (e) {
             print e
+            sh 'az lock delete -g ' + scenario_name + ' -n del-lock || true'
             throw e
         } finally {
             sh 'az logout'
