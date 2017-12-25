@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -u
 
 # Resolve dependencies and download plugins given on the command line
 #
@@ -98,8 +98,10 @@ resolveDependencies() {
     local plugin jpi dependencies
     plugin="$1"
     jpi="$(getArchiveFilename "$plugin")"
+    echo "jpi=$jpi"
 
     dependencies="$(unzip -p "$jpi" META-INF/MANIFEST.MF | tr -d '\r' | tr '\n' '|' | sed -e 's#| ##g' | tr '|' '\n' | grep "^Plugin-Dependencies: " | sed -e 's#^Plugin-Dependencies: ##')"
+    echo "dependencies=$dependencies"
 
     if [[ ! $dependencies ]]; then
         echo " > $plugin has no dependencies"
@@ -226,6 +228,7 @@ main() {
 
     echo "Downloading plugins..."
     for plugin in "${plugins[@]}"; do
+        echo "$plugin"
         pluginVersion=""
 
         if [[ $plugin =~ .*:.* ]]; then

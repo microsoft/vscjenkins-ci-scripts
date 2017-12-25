@@ -43,6 +43,10 @@ sub build {
 
     my $pattern = File::Spec->catfile($dir, 'target/*.hpi');
     my @results = bsd_glob($pattern);
+    if (@results == 0) {
+        $pattern = File::Spec->catfile($dir, '*/target/*.hpi');
+        @results = bsd_glob($pattern);
+    }
     if (@results == 1) {
         log_info("Built $id at $results[0]");
         return $results[0];
