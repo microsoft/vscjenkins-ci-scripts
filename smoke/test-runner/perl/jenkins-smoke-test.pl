@@ -327,8 +327,9 @@ my $monitor = JenkinsMonitor->new($jenkins_home, $options{artifactsDir}, File::S
 $monitor->start(@commands);
 log_info("Jenkins docker container process name: $options{dockerProcessName}");
 $monitor->monitor(\&check_timeout, \@jobs);
-$monitor->terminate(qw(docker kill), $options{dockerProcessName});
+my $final_result = $monitor->terminate(qw(docker kill), $options{dockerProcessName});
 undef $monitor;
+exit $final_result;
 
 #######################################################################################################################
 # Clean Up Tasks Running Before the Program Terminates
