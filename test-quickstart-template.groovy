@@ -11,7 +11,7 @@ node('quickstart-template') {
              ])
         ])
 
-        def utils_location = "https://raw.githubusercontent.com/Azure/azure-devops-utils/v0.11.0/"
+        def utils_location = "https://raw.githubusercontent.com/Azure/jenkins/master/solution_template/"
         // The azure-jenkins template uses an old image that doesn't support the same CLI command that we run
         def run_basic_jenkins_test = env.JOB_BASE_NAME != "azure-jenkins" && env.JOB_BASE_NAME.contains("jenkins")
         def run_jenkins_acr_test = env.JOB_BASE_NAME.contains("jenkins-acr")
@@ -54,25 +54,13 @@ node('quickstart-template') {
         }
     } catch (e) {
         sh 'az lock delete -g ' + scenario_name + ' -n del-lock || true'
-        if ("$PUBLIC_URL" && "$TEAM_MAIL_ADDRESS") {
-            def public_build_url = "$BUILD_URL".replaceAll("$JENKINS_URL" , "$PUBLIC_URL")
-            emailext (
-                attachLog: true,
-                subject: "Jenkins Job '$JOB_NAME' #$BUILD_NUMBER Failed",
-                body: public_build_url,
-                to: "$TEAM_MAIL_ADDRESS"
-            )
-        } else {
-            def public_build_url = "$BUILD_URL".replaceAll("10.0.0.4:8080" , "devops-ci.westcentralus.cloudapp.azure.com")
-            withCredentials([string(credentialsId: 'TeamEmailAddress', variable: 'email_address')]) {
-                emailext (
-                    attachLog: true,
-                    subject: "Jenkins Job '$JOB_NAME' #$BUILD_NUMBER Failed",
-                    body: public_build_url,
-                    to: env.email_address
-                )
-            }
-        }
+        def public_build_url = "$BUILD_URL".replaceAll("$JENKINS_URL" , "$PUBLIC_URL")
+        emailext (
+            attachLog: true,
+            subject: "Jenkins Job '$JOB_NAME' #$BUILD_NUMBER Failed",
+            body: public_build_url,
+            to: "$TEAM_MAIL_ADDRESS"
+        )
         throw e
     } finally {
       sh 'az logout'
