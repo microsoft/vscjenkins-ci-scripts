@@ -5,7 +5,7 @@ def call(Map options = [:]) {
     def version = null
     try {
         // NOTE: The password will be printed out in the logs, but that's fine since you still have to ssh onto the VM to use it
-        version = sh(returnStdout: true, script: 'curl --silent "' + options.utilsLocation + 'jenkins/run-cli-command.sh" | bash -s -- -c "version" -ju "admin" -jp ' + jenkinsAdminPassword).trim()
+        version = sh(returnStdout: true, script: 'curl --silent "' + options.utilsLocation + '/scripts/run-cli-command.sh" | bash -s -- -c "version" -ju "admin" -jp ' + jenkinsAdminPassword).trim()
         echo "Jenkins version: " + version
     } catch (e) {
     }
@@ -42,7 +42,7 @@ def call(Map options = [:]) {
         def jobList = null
         try {
             // NOTE: The password will be printed out in the logs, but that's fine since you still have to ssh onto the VM to use it
-            jobList = sh(returnStdout: true, script: 'curl --silent "' + options.utilsLocation + 'jenkins/run-cli-command.sh" | bash -s -- -c "list-jobs" -ju "admin" -jp ' + jenkinsAdminPassword).trim()
+            jobList = sh(returnStdout: true, script: 'curl --silent "' + options.utilsLocation + '/scripts/run-cli-command.sh" | bash -s -- -c "list-jobs" -ju "admin" -jp ' + jenkinsAdminPassword).trim()
             echo "Jenkins job list: " + jobList
         } catch (e) {
         }

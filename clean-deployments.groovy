@@ -15,15 +15,13 @@ node('quickstart-template') {
             }
         }
     } catch (e) {
-        def public_build_url = "$BUILD_URL".replaceAll("10.0.0.4:8080" , "devops-ci.westcentralus.cloudapp.azure.com")
-        withCredentials([string(credentialsId: 'TeamEmailAddress', variable: 'email_address')]) {
-            emailext (
-                attachLog: true,
-                subject: "Jenkins Job '$JOB_NAME' #$BUILD_NUMBER Failed",
-                body: public_build_url,
-                to: env.email_address
-            )
-        }
+        def public_build_url = "$BUILD_URL".replaceAll("$JENKINS_URL" , "$PUBLIC_URL")
+        emailext (
+            attachLog: true,
+            subject: "Jenkins Job '$JOB_NAME' #$BUILD_NUMBER Failed",
+            body: public_build_url,
+            to: "$TEAM_MAIL_ADDRESS"
+        )
         throw e
     } finally {
       sh 'az logout'

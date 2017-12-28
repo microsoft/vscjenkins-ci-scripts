@@ -7,20 +7,20 @@ properties([
         string(defaultValue: 'master', description: '', name: 'template_branch')])
 ])
 
-def utils_location = "https://raw.githubusercontent.com/Azure/azure-devops-utils/v0.12.0/"
+def utils_location = "https://raw.githubusercontent.com/Azure/jenkins/master/solution_template/"
 
 def DeployJenkinsSolutionTemplate(scenario_name, options) {
     checkout scm
 
-    def template_base_url = "https://raw.githubusercontent.com/" + params.template_fork + "/azure-devops-utils/"+ params.template_branch + "/"
-    def template_url = template_base_url + "/solution_template/jenkins/mainTemplate.json"
+    def template_base_url = "https://raw.githubusercontent.com/" + params.template_fork + "/jenkins/"+ params.template_branch + "/solution_template/"
+    def template_url = template_base_url + "/mainTemplate.json"
     def ssh_command = ""
 
     def params = [:]
-    params['_artifactsLocation'] = ['value' : template_base_url]
-    params['_artifactsLocationSasToken'] = ['value' : '']
+    params['artifactsLocation'] = ['value' : template_base_url]
+    params['artifactsLocationSasToken'] = ['value' : '']
     params['publicIPResourceGroup'] = ['value' : scenario_name]
-    params['vmName'] = ['value' : (UUID.randomUUID().toString().replaceAll('-', '') + UUID.randomUUID().toString().replaceAll('-', '')).replaceAll('-', '').take(54) ]
+    params['vmName'] = ['value' : (UUID.randomUUID().toString() + UUID.randomUUID().toString()).replaceAll('-', '').take(48) ]
     params['adminUserName'] = ['value' : 'testuser']
     params['adminPassword'] = ['value' : '']
     params['adminSSHPublicKey'] = ['value' : '']
@@ -29,6 +29,11 @@ def DeployJenkinsSolutionTemplate(scenario_name, options) {
     params['publicIPName'] = ['value' : 'jnktst' + UUID.randomUUID().toString().replaceAll('-', '')]
     params['dnsPrefix'] = ['value' : 'jnktst' + UUID.randomUUID().toString().replaceAll('-', '')]
     params['jenkinsReleaseType'] = ['value' : options.jenkinsReleaseType]
+    params['vnetResourceGroup'] = ['value' : scenario_name]
+    params['vnetName'] = ['value' : params['vmName']['value'] + '-vnet']
+    params['vnetAddressPrefix'] = ['value' : '172.18.0.0/16']
+    params['subnetName'] = ['value' : 'jnktst']
+    params['subnetAddressPrefix'] = ['value' : '172.18.0.0/24']
 
     if (options.useSSHPublicKey) {
         params['authenticationType'] = ['value' : 'sshPublicKey']
@@ -48,6 +53,17 @@ def DeployJenkinsSolutionTemplate(scenario_name, options) {
         }
     } else {
         params['publicIPNewOrExisting'] = ['value' : 'new']
+    }
+
+    if (options.useExistingVnet) {
+        params['vnetNewOrExisting'] = ['value' : 'existing']
+        def deploy_vnet_script_path = 'scripts/deploy-vnet.sh'
+        sh 'chmod +x ' + deploy_vnet_script_path
+        withCredentials([usernamePassword(credentialsId: 'AzDevOpsTestingSP', passwordVariable: 'app_key', usernameVariable: 'app_id')]) {
+            sh deploy_vnet_script_path + ' -vn ' + params['vnetName']['value'] + ' -rg ' + scenario_name + ' -vp ' + params['vnetAddressPrefix']['value'] + ' -sn ' + params['subnetName']['value'] + ' -sp ' + params['subnetAddressPrefix']['value'] + ' -ai ' + env.app_id + ' -ak ' + env.app_key
+        }
+    } else {
+        params['vnetNewOrExisting'] = ['value' : 'new']
     }
 
     def paramsJSON = readJSON text: '{}'
@@ -107,12 +123,13 @@ try {
         for (publicKey in [true, false]) {
             for (storageTypeStr in ['Standard_LRS', 'Premium_LRS']) {
                 for (existingPublicIP in [true, false]) {
-                    if (existingPublicIP == false || storageTypeStr == 'Standard_LRS') {
+                    for (existingVnet in [true, false]) {
                         options.push([
                             name: 'SSH: ' + publicKey + ' Storage Type: ' + storageTypeStr + ' Existing Public IP: ' + existingPublicIP,
                             useSSHPublicKey: publicKey,
                             storageType: storageTypeStr,
                             useExistingPublicIP: existingPublicIP,
+                            useExistingVnet: existingVnet,
                             utilsLocation: utils_location,
                             jenkinsReleaseType: jenkins_release_type
                         ])
@@ -134,24 +151,12 @@ try {
         }
     }
 } catch (e) {
-    if ("$PUBLIC_URL" && "$TEAM_MAIL_ADDRESS") {
-        def public_build_url = "$BUILD_URL".replaceAll("$JENKINS_URL" , "$PUBLIC_URL")
-        emailext (
-            attachLog: true,
-            subject: "Jenkins Job '$JOB_NAME' #$BUILD_NUMBER Failed",
-            body: public_build_url,
-            to: "$TEAM_MAIL_ADDRESS"
-        )
-    } else {
-        def public_build_url = "$BUILD_URL".replaceAll("10.0.0.4:8080" , "devops-ci.westcentralus.cloudapp.azure.com")
-        withCredentials([string(credentialsId: 'TeamEmailAddress', variable: 'email_address')]) {
-            emailext (
-                attachLog: true,
-                subject: "Jenkins Job '$JOB_NAME' #$BUILD_NUMBER Failed",
-                body: public_build_url,
-                to: env.email_address
-            )
-        }
-    }
+    def public_build_url = "$BUILD_URL".replaceAll("$JENKINS_URL" , "$PUBLIC_URL")
+    emailext (
+        attachLog: true,
+        subject: "Jenkins Job '$JOB_NAME' #$BUILD_NUMBER Failed",
+        body: public_build_url,
+        to: "$TEAM_MAIL_ADDRESS"
+    )
     throw e
 }
