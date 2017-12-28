@@ -1,3 +1,0 @@
-<p>
-    Runs basic DevOps CI sanity checks on a node with a given label.
-</p>

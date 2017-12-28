@@ -1,3 +1,0 @@
-<p>
-    Runs Spinnaker CI Test.
-</p>
