@@ -1,7 +1,7 @@
 def projects = ['azure-vm-agents-plugin', 'azure-credentials-plugin',
     'windows-azure-storage-plugin', 'azure-app-service-plugin', 'azure-commons-plugin',
     'azure-container-agents-plugin', 'azure-function-plugin', 'azure-acs-plugin',
-    'kubernetes-cd-plugin']
+    'kubernetes-cd-plugin', 'azure-ad-plugin']
 
 projects.each {
     def gitUrl = "https://github.com/jenkinsci/${it}.git"
@@ -21,11 +21,15 @@ projects.each {
     }
 
     // generate nightly build job
+    def pattern = 'target/(*).hpi'
+    if (it == 'azure-commons-plugin') {
+        pattern = 'azure-commons-plugin/' + pattern
+    }
     def tsParam = '${BUILD_TIMESTAMP}'
     def specJson = """\
 {
     "files": [{
-        "pattern": "target/(*).hpi",
+        "pattern": "${pattern}",
         "target": "nightly-builds/${ -> it}/{1}-NIGHTLY-${tsParam}.hpi",
         "recursive": false
     }]
@@ -50,7 +54,7 @@ projects.each {
             }
     	}
         steps {
-            maven("verify hpi:hpi")
+            maven("clean verify")
         }
         configure { project ->
             project / 'buildWrappers' / 'org.jfrog.hudson.generic.ArtifactoryGenericConfigurator' {
