@@ -102,8 +102,8 @@ sub ensure_function {
 
     my $location = checked_output(qw(az group show --query location --output tsv --name), $resource_group);
 
-    my $acc_info = checked_output(qw(az storage account show --resource-group), $resource_group, '--name', $account);
-    if ($acc_info =~ /^\s*$/) {
+    my $check_acc = run_shell(qw(az storage account show --resource-group), $resource_group, '--name', $account);
+    if ($check_acc != 0) {
         checked_run(qw(az storage account create --sku Standard_LRS),
             '--resource-group', $resource_group, '--name', $account, '--location', $location);
     }
