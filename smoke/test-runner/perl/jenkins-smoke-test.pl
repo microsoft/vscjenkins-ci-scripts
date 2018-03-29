@@ -329,6 +329,7 @@ log_info("Jenkins docker container process name: $options{dockerProcessName}");
 $monitor->monitor(\&check_timeout, \@jobs);
 my $final_result = $monitor->terminate(qw(docker kill), $options{dockerProcessName});
 undef $monitor;
+log_info("Exit with result $final_result");
 exit $final_result;
 
 #######################################################################################################################
@@ -344,6 +345,8 @@ sub END {
         log_info("Clean up resource group $group");
         run_shell(qw(az group delete -y --no-wait -n), $group);
     }
+
+    exit $final_result;
 }
 
 __END__
