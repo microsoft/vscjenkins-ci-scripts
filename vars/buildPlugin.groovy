@@ -24,9 +24,7 @@ def call() {
                         sh 'mvn clean install package'
 
                         stash includes: testResultFilePatterns.surefire + ', ' + testResultFilePatterns.findBugs, name: 'test_results'
-                        sh 'cp target/*.hpi .'
-                        stash includes: '*.hpi', name: 'artifacts'
-                        archiveArtifacts '*.hpi'
+                        archiveArtifacts '**/target/*.hpi'
                     }
                 }
             }
@@ -53,20 +51,17 @@ def call() {
                 }
             }
 
-            node('linux-dev') {
-                stage ('Publish Test Results') {
-                    sh 'rm -rf *'
-                    unstash 'test_results'
-                    if ( params.run_integration_tests ) {
-                        unstash 'integration_test_results'
-                    }
+            node('master') {
+               stage ('Publish Test Results') {
+                    dir('tests') {
+                        unstash 'test_results'
+                        if ( params.run_integration_tests ) {
+                            unstash 'integration_test_results'
+                        }
 
-                    junit healthScaleFactor: 100, testResults: testResultFilePatterns.surefire + ', ' + testResultFilePatterns.failsafe
-                    step([$class: 'FindBugsPublisher', canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: testResultFilePatterns.findBugs, unHealthy: ''])
-                }
-                stage('Upload Bits') {
-                    unstash 'artifacts'
-                    azureUpload blobProperties: [cacheControl: '', contentEncoding: '', contentLanguage: '', contentType: '', detectContentType: false], pubAccessible: true, storageType: 'blobstorage', containerName: 'devops-jenkins', filesPath: '*.hpi', storageCredentialId: 'devops-public-storage', virtualPath: env.JOB_NAME +'/' +env.BUILD_NUMBER
+                        junit healthScaleFactor: 100, testResults: testResultFilePatterns.surefire + ', ' + testResultFilePatterns.failsafe
+                        findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: testResultFilePatterns.findBugs, unHealthy: ''
+                    }
                 }
             }
 
