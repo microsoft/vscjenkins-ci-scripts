@@ -4,9 +4,9 @@ package com.microsoft.azure.devops.ci;
 
 def getTestResultFilePatterns() {
     return [
-        surefire: 'target/surefire-reports/*.xml',
-        failsafe: 'target/failsafe-reports/*.xml',
-        findBugs: 'target/findbugsXml.xml'
+        surefire: '**/target/surefire-reports/*.xml',
+        failsafe: '**/target/failsafe-reports/*.xml',
+        findBugs: '**/target/findbugsXml.xml'
     ];
 }
 
