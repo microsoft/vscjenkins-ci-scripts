@@ -90,7 +90,6 @@ def RunSolutionTemplateTests(options) {
 
             try {
                 runJenkinsTests(sshCommand: ssh_command, utilsLocation: options.utilsLocation)
-            } catch(e) {
             } finally {
                 sh ssh_command + ' -S ' + socket + ' -O exit'
             }
