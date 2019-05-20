@@ -14,14 +14,14 @@ def call() {
                     if ( params.run_windows_build_step ) {
                         node('win2016-dev') {
                             checkout scm
-                            bat 'mvn clean install package'
+                            bat 'mvn clean install'
                         }
                     }
                 },
                 Linux: {
                     node('ubuntu') {
                         checkout scm
-                        sh 'mvn clean install package'
+                        sh 'mvn clean install'
 
                         stash includes: testResultFilePatterns.surefire + ', ' + testResultFilePatterns.findBugs, name: 'test_results'
                         archiveArtifacts '**/target/*.hpi'
