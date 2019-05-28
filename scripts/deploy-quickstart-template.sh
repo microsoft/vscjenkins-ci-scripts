@@ -130,6 +130,7 @@ parameters=$(try_replace_parameter "$parameters" "servicePrincipalAppId" "$app_i
 parameters=$(try_replace_parameter "$parameters" "servicePrincipalAppKey" "$app_key")
 parameters=$(try_replace_parameter "$parameters" "adminUsername" "$user_name")
 parameters=$(try_replace_parameter "$parameters" "sshPublicKey" "$temp_pub_key")
+parameters=$(try_replace_parameter "$parameters" "adminPasswordOrKey" "$temp_pub_key")
 parameters=$(try_replace_parameter "$parameters" "adminPassword" "0dda226e-eb82-44a2-88e1-16685be37360")
 parameters=$(try_replace_parameter "$parameters" "${vm_prefix}DnsPrefix" "$scenario_name")
 
