@@ -139,6 +139,7 @@ parameters=$(try_replace_parameter "$parameters" "${vm_prefix}DnsPrefix" "$scena
 # preventing from deleteing the nsg rules by webjob
 >&2 az lock create -t CanNotDelete -g $scenario_name -n del-lock
 >&2 echo "Deploying template '$template_name'..."
+>&2 echo "Deploying parameters '$parameters'..."
 deployment_data=$(az group deployment create -g $scenario_name --template-uri ${template_location}${template_name}/azuredeploy.json --parameters "$parameters")
 >&2 echo "$deployment_data"
 
