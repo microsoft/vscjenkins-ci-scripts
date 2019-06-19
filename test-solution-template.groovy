@@ -17,8 +17,8 @@ def DeployJenkinsSolutionTemplate(scenario_name, options) {
     def ssh_command = ""
 
     def params = [:]
-    params['artifactsLocation'] = ['value' : template_base_url]
-    params['artifactsLocationSasToken'] = ['value' : '']
+    params['_artifactsLocation'] = ['value' : template_base_url]
+    params['_artifactsLocationSasToken'] = ['value' : '']
     params['publicIPResourceGroup'] = ['value' : scenario_name]
     params['vmName'] = ['value' : (UUID.randomUUID().toString() + UUID.randomUUID().toString()).replaceAll('-', '').take(48) ]
     params['adminUserName'] = ['value' : 'testuser']
